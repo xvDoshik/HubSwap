@@ -33,6 +33,7 @@ public class ConfigScreen extends Screen {
     private EditBox classicCommandField;
     private EditBox lightCommandField;
     private EditBox light120CommandField;
+    private EditBox primeCommandField;
 
     private boolean notificationsEnabledTmp;
     private boolean smartAutoTuneEnabledTmp;
@@ -134,7 +135,7 @@ public class ConfigScreen extends Screen {
     // ── Настройки ─────────────────────────────────────────────────────────
 
     private void buildSettingsTab() {
-        int sp = Math.min(52, (footerY - contentY) / 5);
+        int sp = Math.min(46, (footerY - contentY) / 6);
         int fh = 20;
 
         classicDelayField    = addField(lx, contentY + sp * 0 + 10, colW, fh, String.valueOf(config.getClassicDelay()), 4);
@@ -142,6 +143,7 @@ public class ConfigScreen extends Screen {
         classicCommandField  = addField(lx, contentY + sp * 2 + 10, colW, fh, config.getClassicCommand(), 10);
         lightCommandField    = addField(lx, contentY + sp * 3 + 10, colW, fh, config.getLightCommand(), 10);
         light120CommandField = addField(lx, contentY + sp * 4 + 10, colW, fh, config.getLight120Command(), 10);
+        primeCommandField    = addField(lx, contentY + sp * 5 + 10, colW, fh, config.getPrimeCommand(), 10);
 
         notificationsToggleButton = addRenderableWidget(Button.builder(getNotificationButtonText(),
                         btn -> { notificationsEnabledTmp = !notificationsEnabledTmp; btn.setMessage(getNotificationButtonText()); })
@@ -283,13 +285,13 @@ public class ConfigScreen extends Screen {
     }
 
     private void renderSettingsLabels(GuiGraphics context) {
-        int sp = Math.min(52, (footerY - contentY) / 5);
+        int sp = Math.min(46, (footerY - contentY) / 6);
         int themeRgb = currentTheme.getRgbColor();
 
         String[] lLabels = { "⏱ Задержка /hub (мс)", "⏱ Задержка между кликами (мс)",
-                "⌨ Команда для Classic", "⌨ Команда для Lite", "⌨ Команда для Lite 1.20" };
+                "⌨ Команда для Classic", "⌨ Команда для Lite", "⌨ Команда для Lite 1.20", "⌨ Команда для Prime" };
         String[] lHints  = { "Напрямую при выключенном автоподборе", "Напрямую при выключенном автоподборе",
-                "Например: cn", "Например: ln", "Например: ln120" };
+                "Например: cn", "Например: ln", "Например: ln120", "Например: pr" };
         for (int i = 0; i < lLabels.length; i++)
             renderLabel(context, lx, contentY + sp * i + 10 - 22, colW, lLabels[i], lHints[i], themeRgb);
 
@@ -395,7 +397,7 @@ public class ConfigScreen extends Screen {
 
         renderSectionHeader(context, lx, y, panelW, "⏱ Время на серверах", themeRgb);
         y += 16;
-        String[][] rows = { {"Classic","classic"}, {"Lite","light"}, {"Lite 1.20","light120"} };
+        String[][] rows = { {"Classic","classic"}, {"Lite","light"}, {"Lite 1.20","light120"}, {"Prime","prime"} };
         // Максимум шкалы = 200 часов в миллисекундах
         long maxMs = 200L * 60 * 60 * 1000;
         int barX = lx + 140;
@@ -470,7 +472,7 @@ public class ConfigScreen extends Screen {
                 if (cd < 100 || cd > 5000) { sendError("Задержка /hub: от 100 до 5000 мс"); return; }
                 if (ck < 50  || ck > 1000) { sendError("Задержка кликов: от 50 до 1000 мс"); return; }
                 config.setDelays(cd, ck);
-                config.setCommands(classicCommandField.getValue(), lightCommandField.getValue(), light120CommandField.getValue());
+                config.setCommands(classicCommandField.getValue(), lightCommandField.getValue(), light120CommandField.getValue(), primeCommandField.getValue());
                 config.setNotificationsEnabled(notificationsEnabledTmp);
                 config.setSmartAutoTuneEnabled(smartAutoTuneEnabledTmp);
             } catch (NumberFormatException e) {
@@ -517,11 +519,11 @@ public class ConfigScreen extends Screen {
     // ── Хелперы ───────────────────────────────────────────────────────────
 
     private String getModeShort(String mode) {
-        return switch (mode) { case "classic" -> "Classic"; case "light120" -> "Lite 1.20"; default -> "Lite"; };
+        return switch (mode) { case "classic" -> "Classic"; case "light120" -> "Lite 1.20"; case "prime" -> "Prime"; default -> "Lite"; };
     }
 
     private String nextMode(String mode) {
-        return switch (mode) { case "classic" -> "light"; case "light" -> "light120"; default -> "classic"; };
+        return switch (mode) { case "classic" -> "light"; case "light" -> "light120"; case "light120" -> "prime"; default -> "classic"; };
     }
 
     private String getKeyName(int keyCode) {

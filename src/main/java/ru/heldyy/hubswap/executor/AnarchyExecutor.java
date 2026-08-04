@@ -16,6 +16,8 @@ public class AnarchyExecutor {
     private static final Minecraft client = Minecraft.getInstance();
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    private static final int[] PRIME_TARGET_SLOTS = {10, 11, 12, 13, 14, 15, 16, 19, 20};
+
     public static void executeSequence(String mode, int anarchyNumber) {
         ModConfig config = HubSwap.getConfig();
         AutoTuneManager.Delays delays = AutoTuneManager.getLiveDelays(config);
@@ -36,56 +38,31 @@ public class AnarchyExecutor {
                         return;
                     }
 
-                    TransitionDetector.startAttempt(
+                    runSequence(
                             TransitionMode.CLASSIC,
                             anarchyNumber,
-                            delays.hubDelay(),
-                            delays.clickDelay(),
-                            delays.confirmDelay()
+                            delays,
+                            16,
+                            getClassicTargetSlot(anarchyNumber)
                     );
-
-                    sendCommand("hub");
-                    sleep(delays.hubDelay());
-
-                    sendCommand("menu");
-                    sleep(delays.clickDelay());
-
-                    clickSlot(15);
-                    sleep(delays.clickDelay() + 60L);
-
-                    clickSlot(getClassicTargetSlot(anarchyNumber));
                     return;
                 }
 
                 if ("light".equals(mode)) {
-                    if (anarchyNumber < 1 || anarchyNumber > 70) {
+                    if (!isValidLightNumber(anarchyNumber)) {
                         sendErrorMessage("Недопустимый номер анархии: " + anarchyNumber);
                         return;
                     }
 
-                    TransitionDetector.startAttempt(
+                    int[] slots = getLightTargetSlots(anarchyNumber);
+                    runSequence(
                             TransitionMode.LIGHT,
                             anarchyNumber,
-                            delays.hubDelay(),
-                            delays.clickDelay(),
-                            delays.confirmDelay()
+                            delays,
+                            13,
+                            slots[0],
+                            slots[1]
                     );
-
-                    sendCommand("hub");
-                    sleep(delays.hubDelay());
-
-                    sendCommand("menu");
-                    sleep(delays.clickDelay());
-
-                    clickSlot(12);
-                    sleep(delays.clickDelay() + 60L);
-
-                    int[] slots = getLightTargetSlots(anarchyNumber);
-
-                    clickSlot(slots[0]);
-                    sleep(delays.clickDelay() + 60L);
-
-                    clickSlot(slots[1]);
                     return;
                 }
 
@@ -95,24 +72,29 @@ public class AnarchyExecutor {
                         return;
                     }
 
-                    TransitionDetector.startAttempt(
+                    runSequence(
                             TransitionMode.LIGHT120,
                             anarchyNumber,
-                            delays.hubDelay(),
-                            delays.clickDelay(),
-                            delays.confirmDelay()
+                            delays,
+                            10,
+                            getLite120TargetSlot(anarchyNumber)
                     );
+                    return;
+                }
 
-                    sendCommand("hub");
-                    sleep(delays.hubDelay());
+                if ("prime".equals(mode)) {
+                    if (anarchyNumber < 1 || anarchyNumber > PRIME_TARGET_SLOTS.length) {
+                        sendErrorMessage("Недопустимый номер прайм анархии: " + anarchyNumber);
+                        return;
+                    }
 
-                    sendCommand("menu");
-                    sleep(delays.clickDelay());
-
-                    clickSlot(10);
-                    sleep(delays.clickDelay() + 60L);
-
-                    clickSlot(getLite120TargetSlot(anarchyNumber));
+                    runSequence(
+                            TransitionMode.PRIME,
+                            anarchyNumber,
+                            delays,
+                            14,
+                            getPrimeTargetSlot(anarchyNumber)
+                    );
                     return;
                 }
 
@@ -126,47 +108,87 @@ public class AnarchyExecutor {
         });
     }
 
-    private static int getClassicTargetSlot(int number) {
-        int[] slots = new int[]{20, 21, 22, 23, 24};
+    private static void runSequence(
+            TransitionMode mode,
+            int targetNumber,
+            AutoTuneManager.Delays delays,
+            int modeSlot,
+            int... targetSlots
+    ) throws InterruptedException {
+        TransitionDetector.startAttempt(
+                mode,
+                targetNumber,
+                delays.hubDelay(),
+                delays.clickDelay(),
+                delays.confirmDelay()
+        );
 
-        if (number < 1 || number > slots.length) {
-            return slots[0];
+        sendCommand("hub");
+        sleep(delays.hubDelay());
+
+        sendCommand("menu");
+        sleep(delays.clickDelay());
+
+        clickSlot(modeSlot);
+        sleep(delays.clickDelay() + 60L);
+
+        for (int i = 0; i < targetSlots.length; i++) {
+            clickSlot(targetSlots[i]);
+            if (i < targetSlots.length - 1) {
+                sleep(delays.clickDelay() + 60L);
+            }
         }
+    }
 
-        return slots[number - 1];
+    private static boolean isValidLightNumber(int number) {
+        if (number == 57) {
+            return false;
+        }
+        return (number >= 1 && number <= 17)
+                || (number >= 18 && number <= 38)
+                || (number >= 39 && number <= 56)
+                || (number >= 58 && number <= 74);
+    }
+
+    private static int getClassicTargetSlot(int number) {
+        return 19 + number;
     }
 
     private static int[] getLightTargetSlots(int number) {
-        int pageSlot;
-        int offset;
-
-        if (number <= 16) {
-            pageSlot = 0;
-            offset = number - 1;
-        } else if (number <= 37) {
-            pageSlot = 1;
-            offset = number - 17;
-        } else if (number <= 53) {
-            pageSlot = 2;
-            offset = number - 38;
-        } else {
-            pageSlot = 3;
-            offset = number - 54;
+        if (number >= 1 && number <= 17) {
+            return new int[]{0, getSoloTargetSlot(number)};
         }
+        if (number >= 18 && number <= 38) {
+            return new int[]{1, getDuoTargetSlot(number)};
+        }
+        if (number >= 39 && number <= 56) {
+            return new int[]{2, getTrioTargetSlot(number)};
+        }
+        return new int[]{3, getClanTargetSlot(number)};
+    }
 
-        int targetSlot = 18 + offset;
+    private static int getSoloTargetSlot(int number) {
+        return 10 + (number - 1) * 3 / 2;
+    }
 
-        return new int[]{pageSlot, targetSlot};
+    private static int getDuoTargetSlot(int number) {
+        return 10 + (number - 18) * 7 / 5;
+    }
+
+    private static int getTrioTargetSlot(int number) {
+        return 10 + (number - 39) * 25 / 17;
+    }
+
+    private static int getClanTargetSlot(int number) {
+        return 10 + (number - 58) * 3 / 2;
     }
 
     private static int getLite120TargetSlot(int number) {
-        int[] slots = new int[]{0, 11, 12, 13};
+        return 10 + number;
+    }
 
-        if (number < 1 || number >= slots.length) {
-            return slots[1];
-        }
-
-        return slots[number];
+    private static int getPrimeTargetSlot(int number) {
+        return PRIME_TARGET_SLOTS[number - 1];
     }
 
     private static void sendCommand(String command) {

@@ -43,6 +43,7 @@ public class ChatScreenMixin {
         String classic = safeLower(cfg.getClassicCommand());
         String light = safeLower(cfg.getLightCommand());
         String light120 = safeLower(cfg.getLight120Command());
+        String prime = safeLower(cfg.getPrimeCommand());
 
         String mapped = null;
 
@@ -56,6 +57,10 @@ public class ChatScreenMixin {
 
         if (mapped == null && (cmd.equals(light120) || cmd.equals("ln120"))) {
             mapped = cfg.getLight120Command();
+        }
+
+        if (mapped == null && (cmd.equals(prime) || cmd.equals("pr"))) {
+            mapped = cfg.getPrimeCommand();
         }
 
         if (mapped == null) return chatText;

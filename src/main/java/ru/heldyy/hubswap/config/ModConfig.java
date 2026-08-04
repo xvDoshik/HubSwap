@@ -25,6 +25,9 @@ public class ModConfig {
     private String light120Command = "ln120";
 
     @Expose
+    private String primeCommand = "pr";
+
+    @Expose
     private boolean notificationsEnabled = true;
 
     @Expose
@@ -84,6 +87,10 @@ public class ModConfig {
         return light120Command;
     }
 
+    public String getPrimeCommand() {
+        return primeCommand;
+    }
+
     public boolean isNotificationsEnabled() {
         return notificationsEnabled;
     }
@@ -126,10 +133,11 @@ public class ModConfig {
         this.clickDelay = clamp(clickDelay, 50, 1000);
     }
 
-    public void setCommands(String classicCommand, String lightCommand, String light120Command) {
+    public void setCommands(String classicCommand, String lightCommand, String light120Command, String primeCommand) {
         this.classicCommand = validateCommand(classicCommand, "cn");
         this.lightCommand = validateCommand(lightCommand, "ln");
         this.light120Command = validateCommand(light120Command, "ln120");
+        this.primeCommand = validateCommand(primeCommand, "pr");
     }
 
     public void setNotificationsEnabled(boolean enabled) {

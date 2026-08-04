@@ -86,6 +86,7 @@ public class HubSwapClient implements ClientModInitializer {
         registerClassicCommand(HubSwap.getConfig().getClassicCommand());
         registerLightCommand(HubSwap.getConfig().getLightCommand());
         registerLight120Command(HubSwap.getConfig().getLight120Command());
+        registerPrimeCommand(HubSwap.getConfig().getPrimeCommand());
     }
 
     private static void registerClassicCommand(String literal) {
@@ -93,11 +94,15 @@ public class HubSwapClient implements ClientModInitializer {
     }
 
     private static void registerLightCommand(String literal) {
-        registerWithRuAlias(literal, 1, 70, anarchy -> AnarchyExecutor.executeSequence("light", anarchy));
+        registerWithRuAlias(literal, 1, 74, anarchy -> AnarchyExecutor.executeSequence("light", anarchy));
     }
 
     private static void registerLight120Command(String literal) {
         registerWithRuAlias(literal, 1, 3, server -> AnarchyExecutor.executeSequence("light120", server));
+    }
+
+    private static void registerPrimeCommand(String literal) {
+        registerWithRuAlias(literal, 1, 9, server -> AnarchyExecutor.executeSequence("prime", server));
     }
 
     private static void registerWithRuAlias(String literal, int min, int max, IntConsumer action) {

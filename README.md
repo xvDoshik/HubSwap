@@ -18,7 +18,7 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
 
 1. Установи [Fabric Loader](https://fabricmc.net/use/) для Minecraft **1.21.11**
 2. Скачай **Fabric API** (`0.141.6+1.21.11`) и положи в `mods/`
-3. Скачай `HubSwap-1.1.0.jar` из [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
+3. Скачай `HubSwap-1.1.1.jar` из [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
 4. Положи JAR в папку `mods/`
 5. Запусти игру
 
@@ -26,7 +26,7 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
 .minecraft/
   mods/
     fabric-api-0.141.6+1.21.11.jar
-    HubSwap-1.1.0.jar
+    HubSwap-1.1.1.jar
 ```
 
 ## Управление
@@ -35,8 +35,9 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
 |----------|-------------------|
 | Меню настроек | **F6** |
 | Classic анархия | `/cn <1-5>` |
-| Lite анархия | `/ln <1-70>` |
+| Lite анархия | `/ln <1-74>` |
 | Lite 1.20 | `/ln120 <1-3>` |
+| Prime анархия | `/pr <1-9>` |
 
 Команды работают на русской и английской раскладке. Названия серверов в чате кликабельные.
 
@@ -71,7 +72,7 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 Готовый JAR:
 
 ```
-build/libs/HubSwap-1.1.0.jar
+build/libs/HubSwap-1.1.1.jar
 ```
 
 ## Благодарности

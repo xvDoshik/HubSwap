@@ -113,6 +113,7 @@ public final class TransitionDetector {
         return switch (mode) {
             case CLASSIC -> "classic";
             case LIGHT120 -> "light120";
+            case PRIME -> "prime";
             default -> "light";
         };
     }
