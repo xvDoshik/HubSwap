@@ -1,9 +1,9 @@
 package ru.heldyy.hubswap.config;
 
 import com.google.gson.annotations.Expose;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class ModConfig {
     private ColorTheme colorTheme = ColorTheme.AQUA;
 
     @Expose
-    private Formatting linkColor = Formatting.GOLD;
+    private String linkColor = ChatFormatting.GOLD.getName();
 
     @Expose
     private int learnedHubOffset = 0;
@@ -96,8 +96,13 @@ public class ModConfig {
         return colorTheme;
     }
 
-    public Formatting getLinkColor() {
-        return linkColor;
+    public ChatFormatting getLinkColor() {
+        for (ChatFormatting formatting : ChatFormatting.values()) {
+            if (formatting.getName().equalsIgnoreCase(linkColor)) {
+                return formatting;
+            }
+        }
+        return ChatFormatting.GOLD;
     }
 
     public int getLearnedHubOffset() {
@@ -139,8 +144,8 @@ public class ModConfig {
         this.colorTheme = theme == null ? ColorTheme.AQUA : theme;
     }
 
-    public void setLinkColor(Formatting color) {
-        this.linkColor = color == null ? Formatting.GOLD : color;
+    public void setLinkColor(ChatFormatting color) {
+        this.linkColor = color == null ? ChatFormatting.GOLD.getName() : color.getName();
     }
 
     public void recordSuccess() {
@@ -168,12 +173,12 @@ public class ModConfig {
 
     private String validateCommand(String command, String defaultCommand) {
         if (command == null || command.trim().isEmpty()) {
-            MinecraftClient client = MinecraftClient.getInstance();
+            Minecraft client = Minecraft.getInstance();
             if (client != null) {
                 client.execute(() -> {
                     if (client.player != null) {
-                        client.player.sendMessage(
-                                Text.literal("[HubSwap] Используется команда по умолчанию: " + defaultCommand),
+                        client.player.displayClientMessage(
+                                Component.literal("[HubSwap] Используется команда по умолчанию: " + defaultCommand),
                                 false
                         );
                     }
@@ -194,18 +199,18 @@ public class ModConfig {
     }
 
     public enum ColorTheme {
-        AQUA("Синяя", Formatting.AQUA, 0x00d9ff),
-        RED("Красная", Formatting.RED, 0xff4444),
-        BLUE("Голубая", Formatting.BLUE, 0x5555ff),
-        GREEN("Зелёная", Formatting.GREEN, 0x55ff55),
-        LIGHT_PURPLE("Фиолетовая", Formatting.LIGHT_PURPLE, 0xff55ff),
-        GOLD("Золотая", Formatting.GOLD, 0xffaa00);
+        AQUA("Синяя", ChatFormatting.AQUA, 0x00d9ff),
+        RED("Красная", ChatFormatting.RED, 0xff4444),
+        BLUE("Голубая", ChatFormatting.BLUE, 0x5555ff),
+        GREEN("Зелёная", ChatFormatting.GREEN, 0x55ff55),
+        LIGHT_PURPLE("Фиолетовая", ChatFormatting.LIGHT_PURPLE, 0xff55ff),
+        GOLD("Золотая", ChatFormatting.GOLD, 0xffaa00);
 
         private final String displayName;
-        private final Formatting formatting;
+        private final ChatFormatting formatting;
         private final int rgbColor;
 
-        ColorTheme(String displayName, Formatting formatting, int rgbColor) {
+        ColorTheme(String displayName, ChatFormatting formatting, int rgbColor) {
             this.displayName = displayName;
             this.formatting = formatting;
             this.rgbColor = rgbColor;
@@ -215,7 +220,7 @@ public class ModConfig {
             return displayName;
         }
 
-        public Formatting getFormatting() {
+        public ChatFormatting getFormatting() {
             return formatting;
         }
 

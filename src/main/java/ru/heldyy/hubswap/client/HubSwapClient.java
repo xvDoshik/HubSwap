@@ -1,5 +1,6 @@
 package ru.heldyy.hubswap.client;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.api.ClientModInitializer;
@@ -7,13 +8,15 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import org.lwjgl.glfw.GLFW;
 import ru.heldyy.hubswap.HubSwap;
 import ru.heldyy.hubswap.config.HotkeySlot;
 import ru.heldyy.hubswap.executor.AnarchyExecutor;
@@ -29,7 +32,7 @@ import java.util.Map;
 import java.util.function.IntConsumer;
 
 public class HubSwapClient implements ClientModInitializer {
-    private static KeyBinding configMenuKey;
+    private static KeyMapping configMenuKey;
     private static CommandDispatcher<FabricClientCommandSource> DISPATCHER;
 
     private static final Map<Integer, Boolean> hotkeyPressed = new HashMap<>();
@@ -48,6 +51,10 @@ public class HubSwapClient implements ClientModInitializer {
         EN_TO_RU.put('n', 'т'); EN_TO_RU.put('m', 'ь');
     }
 
+    private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(
+            Identifier.fromNamespaceAndPath("hubswap", "main")
+    );
+
     @Override
     public void onInitializeClient() {
         registerKeybinds();
@@ -58,10 +65,11 @@ public class HubSwapClient implements ClientModInitializer {
     }
 
     private void registerKeybinds() {
-        configMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        configMenuKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.hubswap.config",
-                295,
-                "category.hubswap.main"
+                InputConstants.Type.KEYSYM,
+                GLFW.GLFW_KEY_F6,
+                CATEGORY
         ));
     }
 
@@ -138,28 +146,28 @@ public class HubSwapClient implements ClientModInitializer {
             MinecraftStatsHelper.onClientTick();
             TransitionDetector.onClientTick(client);
 
-            if (configMenuKey.wasPressed()) {
+            if (configMenuKey.consumeClick()) {
                 client.setScreen(new ConfigScreen(null));
 
                 if (client.player != null) {
-                    Formatting themeColor = HubSwap.getConfig().getColorTheme().getFormatting();
+                    ChatFormatting themeColor = HubSwap.getConfig().getColorTheme().getFormatting();
 
-                    client.player.sendMessage(
-                            Text.literal("[HubSwap] ").formatted(themeColor)
-                                    .append(Text.literal("Открыто меню настроек").formatted(Formatting.WHITE)),
+                    client.player.displayClientMessage(
+                            Component.literal("[HubSwap] ").withStyle(themeColor)
+                                    .append(Component.literal("Открыто меню настроек").withStyle(ChatFormatting.WHITE)),
                             false
                     );
                 }
             }
 
-            if (client.currentScreen == null && client.player != null) {
+            if (client.screen == null && client.player != null) {
                 List<HotkeySlot> slots = HubSwap.getConfig().getHotkeySlots();
 
                 for (HotkeySlot slot : slots) {
                     if (!slot.isEnabled() || slot.getKeyCode() < 0) continue;
 
                     int code = slot.getKeyCode();
-                    boolean nowDown = InputUtil.isKeyPressed(client.getWindow().getHandle(), code);
+                    boolean nowDown = InputConstants.isKeyDown(client.getWindow(), code);
                     boolean wasDown = hotkeyPressed.getOrDefault(code, false);
 
                     if (nowDown && !wasDown) {
@@ -175,10 +183,7 @@ public class HubSwapClient implements ClientModInitializer {
     private void registerLifecycleEvents() {
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> HubSwap.saveStats());
 
-        // Проверка новой версии после входа на сервер
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            UpdateChecker.checkAfterJoin();
-        });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> UpdateChecker.checkAfterJoin());
 
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> TransitionDetector.onDisconnect());
     }

@@ -1,11 +1,11 @@
 package ru.heldyy.hubswap.linkify;
 
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import ru.heldyy.hubswap.config.ModConfig;
 
 import java.util.Optional;
@@ -28,14 +28,14 @@ public class ServerLinkifier {
                     "|(?<clN>(?<![a-zA-Z])anarchy(?<clNum>[1-5])\\b)"
     );
 
-    public static Text linkify(Text original, ModConfig cfg) {
+    public static Component linkify(Component original, ModConfig cfg) {
         if (original == null || cfg == null) return original;
 
         String rawAll = original.getString();
         if (rawAll == null || rawAll.isEmpty()) return original;
         if (!PATTERN.matcher(rawAll).find()) return original;
 
-        MutableText out = Text.empty();
+        MutableComponent out = Component.empty();
         final boolean[] changed = new boolean[]{false};
 
         original.visit((style, part) -> {
@@ -50,10 +50,10 @@ public class ServerLinkifier {
         return changed[0] ? out : original;
     }
 
-    private static boolean appendLinkifiedPart(MutableText out, Style baseStyle, String segment, ModConfig cfg) {
+    private static boolean appendLinkifiedPart(MutableComponent out, Style baseStyle, String segment, ModConfig cfg) {
         Matcher m = PATTERN.matcher(segment);
         if (!m.find()) {
-            out.append(Text.literal(segment).setStyle(baseStyle));
+            out.append(Component.literal(segment).withStyle(baseStyle));
             return false;
         }
 
@@ -62,7 +62,7 @@ public class ServerLinkifier {
 
         while (m.find()) {
             if (m.start() > last) {
-                out.append(Text.literal(segment.substring(last, m.start())).setStyle(baseStyle));
+                out.append(Component.literal(segment.substring(last, m.start())).withStyle(baseStyle));
             }
 
             String matchedText = segment.substring(m.start(), m.end());
@@ -108,25 +108,24 @@ public class ServerLinkifier {
 
             String command = "/" + baseCmd + " " + serverNum;
 
-            Formatting linkColor = cfg.getLinkColor();
+            ChatFormatting linkColor = cfg.getLinkColor();
             Style linkStyle = Style.EMPTY
                     .withBold(baseStyle.isBold())
                     .withItalic(baseStyle.isItalic())
-                    .withUnderline(true)
+                    .withUnderlined(true)
                     .withColor(linkColor)
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-                    .withHoverEvent(new HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
-                            Text.literal("Нажмите: ").formatted(Formatting.GRAY)
-                                    .append(Text.literal(command).formatted(linkColor))
+                    .withClickEvent(new ClickEvent.RunCommand(command))
+                    .withHoverEvent(new HoverEvent.ShowText(
+                            Component.literal("Нажмите: ").withStyle(ChatFormatting.GRAY)
+                                    .append(Component.literal(command).withStyle(linkColor))
                     ));
 
-            out.append(Text.literal(matchedText).setStyle(linkStyle));
+            out.append(Component.literal(matchedText).withStyle(linkStyle));
             last = m.end();
         }
 
         if (last < segment.length()) {
-            out.append(Text.literal(segment.substring(last)).setStyle(baseStyle));
+            out.append(Component.literal(segment.substring(last)).withStyle(baseStyle));
         }
 
         return true;

@@ -3,15 +3,16 @@ package ru.heldyy.hubswap.updater;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -19,10 +20,10 @@ public class UpdateChecker {
     private static final String MOD_ID = "hubswap";
 
     private static final String GITHUB_API =
-            "https://api.github.com/repos/Heldyy90/HubSwap/releases/latest";
+            "https://api.github.com/repos/xvdosha-alt/HubSwap/releases/latest";
 
     private static final String REPO_URL =
-            "https://github.com/Heldyy90/HubSwap/releases/latest";
+            "https://github.com/xvdosha-alt/HubSwap/releases/latest";
 
     private static boolean checked = false;
 
@@ -59,7 +60,7 @@ public class UpdateChecker {
     }
 
     private static ReleaseInfo getLatestRelease() throws Exception {
-        URL url = new URL(GITHUB_API);
+        URL url = URI.create(GITHUB_API).toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
         connection.setRequestMethod("GET");
@@ -92,31 +93,30 @@ public class UpdateChecker {
     }
 
     private static void sendUpdateMessage(String latestVersion, String url) {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
         client.execute(() -> {
             if (client.player == null) return;
 
-            Text prefix = Text.literal("[HubSwap] ")
-                    .formatted(Formatting.AQUA, Formatting.BOLD);
+            Component prefix = Component.literal("[HubSwap] ")
+                    .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD);
 
-            Text message = Text.literal("Вышла новая версия мода: ")
-                    .formatted(Formatting.WHITE)
-                    .append(Text.literal(latestVersion).formatted(Formatting.GREEN))
-                    .append(Text.literal("  "));
+            Component message = Component.literal("Вышла новая версия мода: ")
+                    .withStyle(ChatFormatting.WHITE)
+                    .append(Component.literal(latestVersion).withStyle(ChatFormatting.GREEN))
+                    .append(Component.literal("  "));
 
-            Text link = Text.literal("[СКАЧАТЬ]")
-                    .styled(style -> style
-                            .withColor(Formatting.AQUA)
-                            .withUnderline(true)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
-                            .withHoverEvent(new HoverEvent(
-                                    HoverEvent.Action.SHOW_TEXT,
-                                    Text.literal("Открыть страницу релиза HubSwap")
+            Component link = Component.literal("[СКАЧАТЬ]")
+                    .withStyle(style -> style
+                            .withColor(ChatFormatting.AQUA)
+                            .withUnderlined(true)
+                            .withClickEvent(new ClickEvent.OpenUrl(URI.create(url)))
+                            .withHoverEvent(new HoverEvent.ShowText(
+                                    Component.literal("Открыть страницу релиза HubSwap")
                             ))
                     );
 
-            client.player.sendMessage(prefix.copy().append(message).append(link), false);
+            client.player.displayClientMessage(prefix.copy().append(message).append(link), false);
         });
     }
 

@@ -1,6 +1,6 @@
 package ru.heldyy.hubswap.mixin;
 
-import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screens.ChatScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -13,7 +13,7 @@ import java.util.Locale;
 public class ChatScreenMixin {
 
     @ModifyVariable(
-            method = "sendMessage(Ljava/lang/String;Z)Z",
+            method = "normalizeChatMessage(Ljava/lang/String;)Ljava/lang/String;",
             at = @At("HEAD"),
             argsOnly = true,
             require = 0

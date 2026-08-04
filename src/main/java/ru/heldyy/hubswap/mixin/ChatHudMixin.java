@@ -1,7 +1,7 @@
 package ru.heldyy.hubswap.mixin;
 
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.text.Text;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -9,16 +9,16 @@ import ru.heldyy.hubswap.HubSwap;
 import ru.heldyy.hubswap.gui.TransitionDetector;
 import ru.heldyy.hubswap.linkify.ServerLinkifier;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public class ChatHudMixin {
 
     @ModifyVariable(
-            method = "addMessage(Lnet/minecraft/text/Text;)V",
+            method = "addMessage(Lnet/minecraft/network/chat/Component;)V",
             at = @At("HEAD"),
             argsOnly = true,
             require = 0
     )
-    private Text hubswap$processMessage1(Text message) {
+    private Component hubswap$processMessage1(Component message) {
         if (message != null) {
             TransitionDetector.onChatMessage(message.getString());
         }
@@ -26,12 +26,12 @@ public class ChatHudMixin {
     }
 
     @ModifyVariable(
-            method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;Lnet/minecraft/client/gui/hud/MessageIndicator;)V",
+            method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V",
             at = @At("HEAD"),
             argsOnly = true,
             require = 0
     )
-    private Text hubswap$processMessage2(Text message) {
+    private Component hubswap$processMessage2(Component message) {
         if (message != null) {
             TransitionDetector.onChatMessage(message.getString());
         }

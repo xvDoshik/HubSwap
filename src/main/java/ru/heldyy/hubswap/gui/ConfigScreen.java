@@ -1,12 +1,13 @@
 package ru.heldyy.hubswap.gui;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 import ru.heldyy.hubswap.HubSwap;
 import ru.heldyy.hubswap.client.HubSwapClient;
@@ -19,40 +20,40 @@ import java.util.List;
 import java.util.Map;
 
 public class ConfigScreen extends Screen {
-    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Minecraft client = Minecraft.getInstance();
     private final Screen parent;
     private final ModConfig config;
 
     private enum Tab { SETTINGS, HOTKEYS, STATS }
     private Tab currentTab = Tab.SETTINGS;
-    private ButtonWidget tabSettings, tabHotkeys, tabStats;
+    private Button tabSettings, tabHotkeys, tabStats;
 
-    private TextFieldWidget classicDelayField;
-    private TextFieldWidget clickDelayField;
-    private TextFieldWidget classicCommandField;
-    private TextFieldWidget lightCommandField;
-    private TextFieldWidget light120CommandField;
+    private EditBox classicDelayField;
+    private EditBox clickDelayField;
+    private EditBox classicCommandField;
+    private EditBox lightCommandField;
+    private EditBox light120CommandField;
 
     private boolean notificationsEnabledTmp;
     private boolean smartAutoTuneEnabledTmp;
-    private ButtonWidget notificationsToggleButton;
-    private ButtonWidget smartAutoTuneToggleButton;
+    private Button notificationsToggleButton;
+    private Button smartAutoTuneToggleButton;
 
     private ModConfig.ColorTheme currentTheme;
-    private ButtonWidget themeToggleButton;
+    private Button themeToggleButton;
 
-    private Formatting currentLinkColor;
-    private ButtonWidget linkColorToggleButton;
+    private ChatFormatting currentLinkColor;
+    private Button linkColorToggleButton;
 
     private List<HotkeySlot> hotkeyTmp;
     private int listeningSlot = -1;
-    private final List<ButtonWidget> hotkeyKeyBtns = new ArrayList<>();
-    private final List<ButtonWidget> hotkeyModeBtns = new ArrayList<>();
-    private final List<TextFieldWidget> hotkeyNumFields = new ArrayList<>();
-    private final List<ButtonWidget> hotkeyToggleBtns = new ArrayList<>();
+    private final List<Button> hotkeyKeyBtns = new ArrayList<>();
+    private final List<Button> hotkeyModeBtns = new ArrayList<>();
+    private final List<EditBox> hotkeyNumFields = new ArrayList<>();
+    private final List<Button> hotkeyToggleBtns = new ArrayList<>();
 
-    private ButtonWidget saveButton;
-    private ButtonWidget cancelButton;
+    private Button saveButton;
+    private Button cancelButton;
 
     private float backgroundAlpha = 0.0f;
     private float contentOffset = 20.0f;
@@ -61,7 +62,7 @@ public class ConfigScreen extends Screen {
     private int margin, panelW, lx, rx, colW, contentY, footerY;
 
     public ConfigScreen(Screen parent) {
-        super(Text.literal("Настройки HubSwap"));
+        super(Component.literal("Настройки HubSwap"));
         this.parent = parent;
         this.config = HubSwap.getConfig();
         this.currentTheme = config.getColorTheme();
@@ -95,24 +96,24 @@ public class ConfigScreen extends Screen {
         int tabY = 36;
         int tabW = Math.min(130, panelW / 3 - 4);
 
-        tabSettings = addDrawableChild(ButtonWidget.builder(Text.literal("⚙ Настройки"), b -> switchTab(Tab.SETTINGS))
-                .dimensions(cx - tabW / 2 - tabW - 4, tabY, tabW, 18).build());
-        tabHotkeys  = addDrawableChild(ButtonWidget.builder(Text.literal("⌨ Хоткеи"),    b -> switchTab(Tab.HOTKEYS))
-                .dimensions(cx - tabW / 2,             tabY, tabW, 18).build());
-        tabStats    = addDrawableChild(ButtonWidget.builder(Text.literal("📊 Статистика"), b -> switchTab(Tab.STATS))
-                .dimensions(cx + tabW / 2 + 4,         tabY, tabW, 18).build());
+        tabSettings = addRenderableWidget(Button.builder(Component.literal("⚙ Настройки"), b -> switchTab(Tab.SETTINGS))
+                .bounds(cx - tabW / 2 - tabW - 4, tabY, tabW, 18).build());
+        tabHotkeys  = addRenderableWidget(Button.builder(Component.literal("⌨ Хоткеи"),    b -> switchTab(Tab.HOTKEYS))
+                .bounds(cx - tabW / 2,             tabY, tabW, 18).build());
+        tabStats    = addRenderableWidget(Button.builder(Component.literal("📊 Статистика"), b -> switchTab(Tab.STATS))
+                .bounds(cx + tabW / 2 + 4,         tabY, tabW, 18).build());
 
         int btnW = Math.min(150, panelW / 3);
-        saveButton   = addDrawableChild(ButtonWidget.builder(Text.literal("✓ Сохранить"), btn -> onSave())
-                .dimensions(cx - btnW - 4, footerY + 10, btnW, 20).build());
-        cancelButton = addDrawableChild(ButtonWidget.builder(Text.literal("✕ Отмена"), btn -> close())
-                .dimensions(cx + 4, footerY + 10, btnW, 20).build());
+        saveButton   = addRenderableWidget(Button.builder(Component.literal("✓ Сохранить"), btn -> onSave())
+                .bounds(cx - btnW - 4, footerY + 10, btnW, 20).build());
+        cancelButton = addRenderableWidget(Button.builder(Component.literal("✕ Отмена"), btn -> onClose())
+                .bounds(cx + 4, footerY + 10, btnW, 20).build());
     }
 
     private void switchTab(Tab tab) {
         currentTab = tab;
         listeningSlot = -1;
-        clearChildren();
+        clearWidgets();
         hotkeyKeyBtns.clear();
         hotkeyModeBtns.clear();
         hotkeyNumFields.clear();
@@ -142,25 +143,25 @@ public class ConfigScreen extends Screen {
         lightCommandField    = addField(lx, contentY + sp * 3 + 10, colW, fh, config.getLightCommand(), 10);
         light120CommandField = addField(lx, contentY + sp * 4 + 10, colW, fh, config.getLight120Command(), 10);
 
-        notificationsToggleButton = addDrawableChild(ButtonWidget.builder(getNotificationButtonText(),
+        notificationsToggleButton = addRenderableWidget(Button.builder(getNotificationButtonText(),
                         btn -> { notificationsEnabledTmp = !notificationsEnabledTmp; btn.setMessage(getNotificationButtonText()); })
-                .dimensions(rx, contentY + sp * 0 + 10, colW, fh).build());
-        smartAutoTuneToggleButton = addDrawableChild(ButtonWidget.builder(getSmartAutoTuneButtonText(),
+                .bounds(rx, contentY + sp * 0 + 10, colW, fh).build());
+        smartAutoTuneToggleButton = addRenderableWidget(Button.builder(getSmartAutoTuneButtonText(),
                         btn -> { smartAutoTuneEnabledTmp = !smartAutoTuneEnabledTmp; btn.setMessage(getSmartAutoTuneButtonText()); })
-                .dimensions(rx, contentY + sp * 1 + 10, colW, fh).build());
-        themeToggleButton = addDrawableChild(ButtonWidget.builder(getThemeButtonText(),
+                .bounds(rx, contentY + sp * 1 + 10, colW, fh).build());
+        themeToggleButton = addRenderableWidget(Button.builder(getThemeButtonText(),
                         btn -> { currentTheme = currentTheme.next(); btn.setMessage(getThemeButtonText()); })
-                .dimensions(rx, contentY + sp * 2 + 10, colW, fh).build());
-        linkColorToggleButton = addDrawableChild(ButtonWidget.builder(getLinkColorButtonText(),
+                .bounds(rx, contentY + sp * 2 + 10, colW, fh).build());
+        linkColorToggleButton = addRenderableWidget(Button.builder(getLinkColorButtonText(),
                         btn -> { currentLinkColor = nextLinkColor(currentLinkColor); btn.setMessage(getLinkColorButtonText()); })
-                .dimensions(rx, contentY + sp * 3 + 10, colW, fh).build());
+                .bounds(rx, contentY + sp * 3 + 10, colW, fh).build());
     }
 
-    private TextFieldWidget addField(int x, int y, int w, int h, String text, int maxLen) {
-        TextFieldWidget f = new TextFieldWidget(textRenderer, x, y, w, h, Text.literal(""));
-        f.setText(text);
+    private EditBox addField(int x, int y, int w, int h, String text, int maxLen) {
+        EditBox f = new EditBox(font, x, y, w, h, Component.literal(""));
+        f.setValue(text);
         f.setMaxLength(maxLen);
-        return addDrawableChild(f);
+        return addRenderableWidget(f);
     }
 
     // ── Хоткеи ────────────────────────────────────────────────────────────
@@ -187,64 +188,65 @@ public class ConfigScreen extends Screen {
             int y = startY + cardH * i;
             final int idx = i;
 
-            ButtonWidget keyBtn = addDrawableChild(ButtonWidget.builder(
-                            Text.literal(slot.getKeyCode() < 0 ? "[ --- ]" : "[ " + getKeyName(slot.getKeyCode()) + " ]"),
-                            btn -> { listeningSlot = idx; btn.setMessage(Text.literal("[ нажми... ]")); })
-                    .dimensions(kx, y, keyW, rowH).build());
+            Button keyBtn = addRenderableWidget(Button.builder(
+                            Component.literal(slot.getKeyCode() < 0 ? "[ --- ]" : "[ " + getKeyName(slot.getKeyCode()) + " ]"),
+                            btn -> { listeningSlot = idx; btn.setMessage(Component.literal("[ нажми... ]")); })
+                    .bounds(kx, y, keyW, rowH).build());
             hotkeyKeyBtns.add(keyBtn);
 
-            ButtonWidget modeBtn = addDrawableChild(ButtonWidget.builder(
-                            Text.literal(getModeShort(slot.getMode())),
+            Button modeBtn = addRenderableWidget(Button.builder(
+                            Component.literal(getModeShort(slot.getMode())),
                             btn -> {
                                 String next = nextMode(hotkeyTmp.get(idx).getMode());
                                 hotkeyTmp.get(idx).setMode(next);
-                                btn.setMessage(Text.literal(getModeShort(next)));
+                                btn.setMessage(Component.literal(getModeShort(next)));
                             })
-                    .dimensions(mx, y, modeW, rowH).build());
+                    .bounds(mx, y, modeW, rowH).build());
             hotkeyModeBtns.add(modeBtn);
 
-            TextFieldWidget numField = new TextFieldWidget(textRenderer, nx, y, numW, rowH, Text.literal(""));
-            numField.setText(String.valueOf(slot.getServerNumber()));
+            EditBox numField = new EditBox(font, nx, y, numW, rowH, Component.literal(""));
+            numField.setValue(String.valueOf(slot.getServerNumber()));
             numField.setMaxLength(3);
-            addDrawableChild(numField);
+            addRenderableWidget(numField);
             hotkeyNumFields.add(numField);
 
-            ButtonWidget toggleBtn = addDrawableChild(ButtonWidget.builder(slotToggleText(slot.isEnabled()),
+            Button toggleBtn = addRenderableWidget(Button.builder(slotToggleText(slot.isEnabled()),
                             btn -> {
                                 boolean cur = hotkeyTmp.get(idx).isEnabled();
                                 hotkeyTmp.get(idx).setEnabled(!cur);
                                 btn.setMessage(slotToggleText(!cur));
                             })
-                    .dimensions(tx, y, togW, rowH).build());
+                    .bounds(tx, y, togW, rowH).build());
             hotkeyToggleBtns.add(toggleBtn);
         }
     }
 
-    private Text slotToggleText(boolean on) {
-        return on ? Text.literal("✓ Вкл").formatted(Formatting.GREEN)
-                : Text.literal("✗ Выкл").formatted(Formatting.RED);
+    private Component slotToggleText(boolean on) {
+        return on ? Component.literal("✓ Вкл").withStyle(ChatFormatting.GREEN)
+                : Component.literal("✗ Выкл").withStyle(ChatFormatting.RED);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key();
         if (listeningSlot >= 0) {
-            if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
+            if (keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) {
                 hotkeyTmp.get(listeningSlot).setKeyCode(-1);
-                hotkeyKeyBtns.get(listeningSlot).setMessage(Text.literal("[ --- ]"));
+                hotkeyKeyBtns.get(listeningSlot).setMessage(Component.literal("[ --- ]"));
             } else {
                 hotkeyTmp.get(listeningSlot).setKeyCode(keyCode);
-                hotkeyKeyBtns.get(listeningSlot).setMessage(Text.literal("[ " + getKeyName(keyCode) + " ]"));
+                hotkeyKeyBtns.get(listeningSlot).setMessage(Component.literal("[ " + getKeyName(keyCode) + " ]"));
             }
             listeningSlot = -1;
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     // ── Рендер ────────────────────────────────────────────────────────────
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         backgroundAlpha = Math.min(1.0f, backgroundAlpha + delta * 2.0f);
         contentOffset   = Math.max(0.0f, contentOffset   - delta * 60.0f);
 
@@ -252,8 +254,8 @@ public class ConfigScreen extends Screen {
         renderHeaderPanel(context);
         renderFooterPanel(context);
 
-        context.getMatrices().push();
-        context.getMatrices().translate(0, contentOffset, 0);
+        context.pose().pushMatrix();
+        context.pose().translate(0, contentOffset);
 
         switch (currentTab) {
             case SETTINGS -> renderSettingsLabels(context);
@@ -262,13 +264,13 @@ public class ConfigScreen extends Screen {
         }
 
         super.render(context, mouseX, mouseY, delta);
-        context.getMatrices().pop();
+        context.pose().popMatrix();
 
         renderActiveTabUnderline(context);
     }
 
-    private void renderActiveTabUnderline(DrawContext context) {
-        ButtonWidget btn = switch (currentTab) {
+    private void renderActiveTabUnderline(GuiGraphics context) {
+        Button btn = switch (currentTab) {
             case SETTINGS -> tabSettings;
             case HOTKEYS  -> tabHotkeys;
             case STATS    -> tabStats;
@@ -280,7 +282,7 @@ public class ConfigScreen extends Screen {
                 btn.getX() + btn.getWidth(), btn.getY() + btn.getHeight(), color);
     }
 
-    private void renderSettingsLabels(DrawContext context) {
+    private void renderSettingsLabels(GuiGraphics context) {
         int sp = Math.min(52, (footerY - contentY) / 5);
         int themeRgb = currentTheme.getRgbColor();
 
@@ -298,7 +300,7 @@ public class ConfigScreen extends Screen {
             renderLabel(context, rx, contentY + sp * i + 10 - 22, colW, rLabels[i], rHints[i], themeRgb);
     }
 
-    private void renderHotkeysLabels(DrawContext context) {
+    private void renderHotkeysLabels(GuiGraphics context) {
         int rowH   = Math.min(20, (footerY - contentY - 30) / 9);
         int cardH  = rowH + 2;
         int startY = contentY + 24;
@@ -321,10 +323,10 @@ public class ConfigScreen extends Screen {
         int headerAlpha = (int)(backgroundAlpha * 180);
         context.fill(lx - 2, hY - 3, lx + panelW + 2, hY + 13, headerAlpha << 24 | 0x1a1f3a);
         context.fill(lx - 2, hY - 3, lx, hY + 13, alpha << 24 | themeRgb);
-        context.drawText(textRenderer, Text.literal("Клавиша").formatted(currentTheme.getFormatting()), kx + 3, hY, themeRgb, false);
-        context.drawText(textRenderer, Text.literal("Анархия").formatted(currentTheme.getFormatting()),     mx, hY, themeRgb, false);
-        context.drawText(textRenderer, Text.literal("№").formatted(currentTheme.getFormatting()),       nx, hY, themeRgb, false);
-        context.drawText(textRenderer, Text.literal("Статус").formatted(currentTheme.getFormatting()),     tx, hY, themeRgb, false);
+        context.drawString(font, Component.literal("Клавиша").withStyle(currentTheme.getFormatting()), kx + 3, hY, themeRgb, false);
+        context.drawString(font, Component.literal("Анархия").withStyle(currentTheme.getFormatting()),     mx, hY, themeRgb, false);
+        context.drawString(font, Component.literal("№").withStyle(currentTheme.getFormatting()),       nx, hY, themeRgb, false);
+        context.drawString(font, Component.literal("Статус").withStyle(currentTheme.getFormatting()),     tx, hY, themeRgb, false);
 
         for (int i = 0; i < 8; i++) {
             int y = startY + cardH * i;
@@ -339,36 +341,36 @@ public class ConfigScreen extends Screen {
                 context.fill(lx, y - 1, lx + panelW + 2, y + rowH, (int)(backgroundAlpha * 35) << 24 | themeRgb);
             }
 
-            context.drawText(textRenderer,
-                    Text.literal(String.valueOf(i + 1)).formatted(currentTheme.getFormatting()),
+            context.drawString(font,
+                    Component.literal(String.valueOf(i + 1)).withStyle(currentTheme.getFormatting()),
                     lx - 14, y + 4, themeRgb, false);
         }
 
-        context.drawText(textRenderer,
-                Text.literal("Нажмите кнопку → нажмите клавишу   |   ESC = очистить"),
+        context.drawString(font,
+                Component.literal("Нажмите кнопку → нажмите клавишу   |   ESC = очистить"),
                 lx, startY + cardH * 8 + 2, 0x555566, false);
     }
 
-    private void renderStatsTab(DrawContext context) {
+    private void renderStatsTab(GuiGraphics context) {
         StatsData stats  = HubSwap.getStats();
         int themeRgb     = currentTheme.getRgbColor();
         int y            = contentY;
 
         renderSectionHeader(context, lx, y, panelW, "📊 Переходы", themeRgb);
         y += 16;
-        context.drawText(textRenderer, Text.literal("Всего: " + stats.getTotalSwitches()), lx + 8, y, 0xFFFFFF, true);
-        context.drawText(textRenderer, Text.literal("За сессию: " + stats.getSessionSwitches()), rx, y, 0xFFFFFF, true);
+        context.drawString(font, Component.literal("Всего: " + stats.getTotalSwitches()), lx + 8, y, 0xFFFFFF, true);
+        context.drawString(font, Component.literal("За сессию: " + stats.getSessionSwitches()), rx, y, 0xFFFFFF, true);
         y += 22;
 
         renderSectionHeader(context, lx, y, panelW, "🏆 Любимый сервер", themeRgb);
         y += 16;
         String fav = stats.getFavoriteKey();
         if (fav != null)
-            context.drawText(textRenderer,
-                    Text.literal(StatsData.formatKey(fav) + "  —  " + stats.getCountForKey(fav) + " раз").formatted(currentTheme.getFormatting()),
+            context.drawString(font,
+                    Component.literal(StatsData.formatKey(fav) + "  —  " + stats.getCountForKey(fav) + " раз").withStyle(currentTheme.getFormatting()),
                     lx + 8, y, themeRgb, true);
         else
-            context.drawText(textRenderer, Text.literal("Пока нет данных"), lx + 8, y, 0x666666, false);
+            context.drawString(font, Component.literal("Пока нет данных"), lx + 8, y, 0x666666, false);
         y += 22;
 
         renderSectionHeader(context, lx, y, panelW, "📋 Топ серверов", themeRgb);
@@ -377,15 +379,15 @@ public class ConfigScreen extends Screen {
                 .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
                 .limit(5).toList();
         if (sorted.isEmpty()) {
-            context.drawText(textRenderer, Text.literal("Пока нет данных"), lx + 8, y, 0x666666, false);
+            context.drawString(font, Component.literal("Пока нет данных"), lx + 8, y, 0x666666, false);
             y += 14;
         } else {
             for (int i = 0; i < sorted.size(); i++) {
                 Map.Entry<String, Long> e = sorted.get(i);
                 String medal = switch (i) { case 0 -> "🥇"; case 1 -> "🥈"; case 2 -> "🥉"; default -> (i+1)+"."; };
-                context.drawText(textRenderer,
-                        Text.literal(medal + " " + StatsData.formatKey(e.getKey()) + " — " + e.getValue() + " раз")
-                                .formatted(i == 0 ? currentTheme.getFormatting() : Formatting.WHITE),
+                context.drawString(font,
+                        Component.literal(medal + " " + StatsData.formatKey(e.getKey()) + " — " + e.getValue() + " раз")
+                                .withStyle(i == 0 ? currentTheme.getFormatting() : ChatFormatting.WHITE),
                         lx + 8, y + i * 14, i == 0 ? themeRgb : 0xCCCCCC, i == 0);
             }
             y += sorted.size() * 14 + 8;
@@ -401,9 +403,9 @@ public class ConfigScreen extends Screen {
         for (int i = 0; i < rows.length; i++) {
             int rowY = y + i * 24;
             long ms = stats.getTimeSpentMs(rows[i][1]);
-            context.drawText(textRenderer, Text.literal(rows[i][0]), lx + 8, rowY + 4, 0xFFFFFF, false);
-            context.drawText(textRenderer,
-                    Text.literal(StatsData.formatTime(ms)).formatted(currentTheme.getFormatting()),
+            context.drawString(font, Component.literal(rows[i][0]), lx + 8, rowY + 4, 0xFFFFFF, false);
+            context.drawString(font,
+                    Component.literal(StatsData.formatTime(ms)).withStyle(currentTheme.getFormatting()),
                     lx + 68, rowY + 4, themeRgb, true);
             float ratio = (float) ms / maxMs;
             if (ratio > 1.0f) ratio = 1.0f;
@@ -415,30 +417,30 @@ public class ConfigScreen extends Screen {
         }
     }
 
-    private void renderSectionHeader(DrawContext context, int x, int y, int width, String title, int themeRgb) {
+    private void renderSectionHeader(GuiGraphics context, int x, int y, int width, String title, int themeRgb) {
         int alpha = (int)(backgroundAlpha * 160);
         context.fill(x, y, x + width, y + 13, alpha << 24 | 0x16213e);
         context.fill(x, y, x + 3, y + 13, (int)(backgroundAlpha * 255) << 24 | themeRgb);
-        context.drawText(textRenderer, Text.literal(title).formatted(currentTheme.getFormatting()), x + 7, y + 3, themeRgb, false);
+        context.drawString(font, Component.literal(title).withStyle(currentTheme.getFormatting()), x + 7, y + 3, themeRgb, false);
     }
 
-    private void renderGradientBackground(DrawContext context) {
+    private void renderGradientBackground(GuiGraphics context) {
         context.fillGradient(0, 0, this.width, this.height,
                 ((int)(backgroundAlpha * 200) << 24) | 0x0a0e27,
                 ((int)(backgroundAlpha * 220) << 24) | 0x1a1f3a);
     }
 
-    private void renderHeaderPanel(DrawContext context) {
+    private void renderHeaderPanel(GuiGraphics context) {
         int panelH = 60;
         int alpha  = (int)(backgroundAlpha * 180);
         context.fillGradient(0, 0, this.width, panelH, alpha << 24 | 0x16213e, alpha << 24 | 0x0f1728);
         context.fill(0, panelH - 2, this.width, panelH, alpha << 24 | currentTheme.getRgbColor());
-        context.drawCenteredTextWithShadow(textRenderer,
-                Text.literal("HubSwap").formatted(currentTheme.getFormatting(), Formatting.BOLD),
+        context.drawCenteredString(font,
+                Component.literal("HubSwap").withStyle(currentTheme.getFormatting()).withStyle(ChatFormatting.BOLD),
                 this.width / 2, 17, 0xFFFFFF);
     }
 
-    private void renderFooterPanel(DrawContext context) {
+    private void renderFooterPanel(GuiGraphics context) {
         int alpha = (int)(backgroundAlpha * 200);
         // Фиолетовая линия
         context.fill(0, footerY, this.width, footerY + 2, alpha << 24 | currentTheme.getRgbColor());
@@ -446,16 +448,16 @@ public class ConfigScreen extends Screen {
         context.fill(0, footerY + 2, this.width, this.height, (int)(backgroundAlpha * 160) << 24 | 0x0a0e27);
     }
 
-    private void renderLabel(DrawContext context, int x, int y, int width, String label, String hint, int themeRgb) {
+    private void renderLabel(GuiGraphics context, int x, int y, int width, String label, String hint, int themeRgb) {
         int alpha = (int)(backgroundAlpha * 100);
         context.fill(x - 2, y, x + width + 2, y + 18, alpha << 24 | 0x1a1f3a);
         context.fill(x - 2, y, x, y + 18, (int)(backgroundAlpha * 255) << 24 | themeRgb);
-        context.drawText(textRenderer, Text.literal(label).formatted(currentTheme.getFormatting()), x + 3, y + 2, themeRgb, false);
-        context.getMatrices().push();
-        context.getMatrices().translate(x + 3, y + 11, 0);
-        context.getMatrices().scale(0.7f, 0.7f, 1.0f);
-        context.drawText(textRenderer, hint, 0, 0, 0xCCCCCC, false);
-        context.getMatrices().pop();
+        context.drawString(font, Component.literal(label).withStyle(currentTheme.getFormatting()), x + 3, y + 2, themeRgb, false);
+        context.pose().pushMatrix();
+        context.pose().translate(x + 3, y + 11);
+        context.pose().scale(0.7f, 0.7f);
+        context.drawString(font, hint, 0, 0, 0xCCCCCC, false);
+        context.pose().popMatrix();
     }
 
     // ── Сохранение ────────────────────────────────────────────────────────
@@ -463,12 +465,12 @@ public class ConfigScreen extends Screen {
     private void onSave() {
         if (classicDelayField != null) {
             try {
-                int cd = Integer.parseInt(classicDelayField.getText());
-                int ck = Integer.parseInt(clickDelayField.getText());
+                int cd = Integer.parseInt(classicDelayField.getValue());
+                int ck = Integer.parseInt(clickDelayField.getValue());
                 if (cd < 100 || cd > 5000) { sendError("Задержка /hub: от 100 до 5000 мс"); return; }
                 if (ck < 50  || ck > 1000) { sendError("Задержка кликов: от 50 до 1000 мс"); return; }
                 config.setDelays(cd, ck);
-                config.setCommands(classicCommandField.getText(), lightCommandField.getText(), light120CommandField.getText());
+                config.setCommands(classicCommandField.getValue(), lightCommandField.getValue(), light120CommandField.getValue());
                 config.setNotificationsEnabled(notificationsEnabledTmp);
                 config.setSmartAutoTuneEnabled(smartAutoTuneEnabledTmp);
             } catch (NumberFormatException e) {
@@ -479,7 +481,7 @@ public class ConfigScreen extends Screen {
 
         for (int i = 0; i < 8 && i < hotkeyNumFields.size(); i++) {
             try {
-                int num = Integer.parseInt(hotkeyNumFields.get(i).getText().trim());
+                int num = Integer.parseInt(hotkeyNumFields.get(i).getValue().trim());
                 hotkeyTmp.get(i).setServerNumber(Math.max(1, num));
             } catch (NumberFormatException ignored) {}
         }
@@ -499,17 +501,17 @@ public class ConfigScreen extends Screen {
         HubSwapClient.registerConfiguredCommands();
 
         if (client != null && client.player != null)
-            client.player.sendMessage(
-                    Text.literal("[HubSwap] ").formatted(currentTheme.getFormatting())
-                            .append(Text.literal("✓ Настройки сохранены!").formatted(Formatting.GREEN)), false);
-        close();
+            client.player.displayClientMessage(
+                    Component.literal("[HubSwap] ").withStyle(currentTheme.getFormatting())
+                            .append(Component.literal("✓ Настройки сохранены!").withStyle(ChatFormatting.GREEN)), false);
+        onClose();
     }
 
     private void sendError(String text) {
         if (client != null && client.player != null)
-            client.player.sendMessage(
-                    Text.literal("[HubSwap] ").formatted(currentTheme.getFormatting())
-                            .append(Text.literal("Ошибка: " + text).formatted(Formatting.RED)), false);
+            client.player.displayClientMessage(
+                    Component.literal("[HubSwap] ").withStyle(currentTheme.getFormatting())
+                            .append(Component.literal("Ошибка: " + text).withStyle(ChatFormatting.RED)), false);
     }
 
     // ── Хелперы ───────────────────────────────────────────────────────────
@@ -564,46 +566,46 @@ public class ConfigScreen extends Screen {
         };
     }
 
-    private Text getNotificationButtonText() {
+    private Component getNotificationButtonText() {
         return notificationsEnabledTmp
-                ? Text.literal("🔔 Уведомления: ВКЛ").formatted(Formatting.GREEN)
-                : Text.literal("🔕 Уведомления: ВЫКЛ").formatted(Formatting.RED);
+                ? Component.literal("🔔 Уведомления: ВКЛ").withStyle(ChatFormatting.GREEN)
+                : Component.literal("🔕 Уведомления: ВЫКЛ").withStyle(ChatFormatting.RED);
     }
 
-    private Text getSmartAutoTuneButtonText() {
+    private Component getSmartAutoTuneButtonText() {
         return smartAutoTuneEnabledTmp
-                ? Text.literal("🧠 Умный автоподбор: ВКЛ").formatted(Formatting.GREEN)
-                : Text.literal("🧠 Умный автоподбор: ВЫКЛ").formatted(Formatting.RED);
+                ? Component.literal("🧠 Умный автоподбор: ВКЛ").withStyle(ChatFormatting.GREEN)
+                : Component.literal("🧠 Умный автоподбор: ВЫКЛ").withStyle(ChatFormatting.RED);
     }
 
-    private Text getThemeButtonText() {
-        return Text.literal("🎨 Тема: " + currentTheme.getDisplayName()).formatted(currentTheme.getFormatting());
+    private Component getThemeButtonText() {
+        return Component.literal("🎨 Тема: " + currentTheme.getDisplayName()).withStyle(currentTheme.getFormatting());
     }
 
-    private Text getLinkColorButtonText() {
-        return Text.literal("🔗 Цвет ссылок: " + getLinkColorName(currentLinkColor)).formatted(currentLinkColor);
+    private Component getLinkColorButtonText() {
+        return Component.literal("🔗 Цвет ссылок: " + getLinkColorName(currentLinkColor)).withStyle(currentLinkColor);
     }
 
-    private String getLinkColorName(Formatting color) {
-        if (color == Formatting.GOLD)         return "Золотой";
-        if (color == Formatting.GREEN)        return "Зелёный";
-        if (color == Formatting.YELLOW)       return "Жёлтый";
-        if (color == Formatting.AQUA)         return "Синий";
-        if (color == Formatting.LIGHT_PURPLE) return "Фиолетовый";
-        if (color == Formatting.RED)          return "Красный";
+    private String getLinkColorName(ChatFormatting color) {
+        if (color == ChatFormatting.GOLD)         return "Золотой";
+        if (color == ChatFormatting.GREEN)        return "Зелёный";
+        if (color == ChatFormatting.YELLOW)       return "Жёлтый";
+        if (color == ChatFormatting.AQUA)         return "Синий";
+        if (color == ChatFormatting.LIGHT_PURPLE) return "Фиолетовый";
+        if (color == ChatFormatting.RED)          return "Красный";
         return "Золотой";
     }
 
-    private Formatting nextLinkColor(Formatting current) {
-        Formatting[] colors = { Formatting.GOLD, Formatting.GREEN, Formatting.YELLOW,
-                Formatting.AQUA, Formatting.LIGHT_PURPLE, Formatting.RED };
+    private ChatFormatting nextLinkColor(ChatFormatting current) {
+        ChatFormatting[] colors = { ChatFormatting.GOLD, ChatFormatting.GREEN, ChatFormatting.YELLOW,
+                ChatFormatting.AQUA, ChatFormatting.LIGHT_PURPLE, ChatFormatting.RED };
         for (int i = 0; i < colors.length; i++)
             if (colors[i] == current) return colors[(i + 1) % colors.length];
-        return Formatting.GOLD;
+        return ChatFormatting.GOLD;
     }
 
     @Override
-    public void close() {
+    public void onClose() {
         if (client != null) client.setScreen(parent);
     }
 }

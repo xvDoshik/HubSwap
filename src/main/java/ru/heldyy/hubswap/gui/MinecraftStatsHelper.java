@@ -1,6 +1,6 @@
 package ru.heldyy.hubswap.gui;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;
@@ -87,21 +87,13 @@ public final class MinecraftStatsHelper {
     }
 
     public static int getApproxFps() {
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
         if (client == null) {
             return -1;
         }
 
         try {
-            int fps = client.getCurrentFps();
-            if (fps > 0) {
-                return fps;
-            }
-        } catch (Exception ignored) {
-        }
-
-        try {
-            Field field = MinecraftClient.class.getDeclaredField("fpsDebugString");
+            Field field = Minecraft.class.getDeclaredField("fpsString");
             field.setAccessible(true);
             Object raw = field.get(client);
             if (!(raw instanceof String fpsString) || fpsString.isEmpty()) {
@@ -117,13 +109,13 @@ public final class MinecraftStatsHelper {
     }
 
     private static int readPing() {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client == null || client.player == null || client.getNetworkHandler() == null) {
+        Minecraft client = Minecraft.getInstance();
+        if (client == null || client.player == null || client.getConnection() == null) {
             return -1;
         }
 
         try {
-            var entry = client.getNetworkHandler().getPlayerListEntry(client.player.getUuid());
+            var entry = client.getConnection().getPlayerInfo(client.player.getUUID());
             if (entry != null) {
                 int latency = entry.getLatency();
                 if (latency > 0) {

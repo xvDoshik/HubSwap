@@ -1,8 +1,8 @@
 package ru.heldyy.hubswap.executor;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.ClickType;
 import ru.heldyy.hubswap.HubSwap;
 import ru.heldyy.hubswap.config.ModConfig;
 import ru.heldyy.hubswap.gui.AutoTuneManager;
@@ -13,14 +13,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class AnarchyExecutor {
-    private static final MinecraftClient client = MinecraftClient.getInstance();
+    private static final Minecraft client = Minecraft.getInstance();
     private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     public static void executeSequence(String mode, int anarchyNumber) {
         ModConfig config = HubSwap.getConfig();
         AutoTuneManager.Delays delays = AutoTuneManager.getLiveDelays(config);
 
-        if (client.player == null || client.interactionManager == null) {
+        if (client.player == null || client.gameMode == null) {
             sendErrorMessage("Игрок или взаимодействие недоступны");
             return;
         }
@@ -141,19 +141,15 @@ public class AnarchyExecutor {
         int offset;
 
         if (number <= 16) {
-            // СолоЛайт #1-#16
             pageSlot = 0;
             offset = number - 1;
         } else if (number <= 37) {
-            // ДуоЛайт #17-#37
             pageSlot = 1;
             offset = number - 17;
         } else if (number <= 53) {
-            // ТриоЛайт #38-#53
             pageSlot = 2;
             offset = number - 38;
         } else {
-            // КланЛайт #54-#70
             pageSlot = 3;
             offset = number - 54;
         }
@@ -175,7 +171,7 @@ public class AnarchyExecutor {
 
     private static void sendCommand(String command) {
         client.execute(() -> {
-            if (client.player == null || client.getNetworkHandler() == null) {
+            if (client.player == null || client.getConnection() == null) {
                 return;
             }
 
@@ -189,21 +185,21 @@ public class AnarchyExecutor {
                 return;
             }
 
-            client.getNetworkHandler().sendChatCommand(cmd);
+            client.getConnection().sendCommand(cmd);
         });
     }
 
     private static void clickSlot(int slot) {
         client.execute(() -> {
-            if (client.interactionManager != null
+            if (client.gameMode != null
                     && client.player != null
-                    && client.player.currentScreenHandler != null) {
+                    && client.player.containerMenu != null) {
 
-                client.interactionManager.clickSlot(
-                        client.player.currentScreenHandler.syncId,
+                client.gameMode.handleInventoryMouseClick(
+                        client.player.containerMenu.containerId,
                         slot,
                         0,
-                        SlotActionType.PICKUP,
+                        ClickType.PICKUP,
                         client.player
                 );
             } else {
@@ -215,7 +211,7 @@ public class AnarchyExecutor {
     private static void sendErrorMessage(String message) {
         client.execute(() -> {
             if (client.player != null) {
-                client.player.sendMessage(Text.literal("[HubSwap] Ошибка: " + message), false);
+                client.player.displayClientMessage(Component.literal("[HubSwap] Ошибка: " + message), false);
             }
         });
     }

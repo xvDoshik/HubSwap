@@ -1,6 +1,6 @@
 package ru.heldyy.hubswap.gui;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import ru.heldyy.hubswap.HubSwap;
 
 import java.util.ArrayDeque;
@@ -33,7 +33,7 @@ public final class TransitionDetector {
         }
     }
 
-    public static void onClientTick(MinecraftClient client) {
+    public static void onClientTick(Minecraft client) {
         if (currentAttempt == null || currentAttempt.isFinished()) {
             return;
         }
@@ -50,7 +50,7 @@ public final class TransitionDetector {
         }
     }
 
-    private static boolean isSuccess(MinecraftClient client, TransitionAttempt attempt, long elapsed) {
+    private static boolean isSuccess(Minecraft client, TransitionAttempt attempt, long elapsed) {
         if (matchedChat(attempt)) {
             return true;
         }
@@ -84,7 +84,7 @@ public final class TransitionDetector {
         return false;
     }
 
-    private static boolean isInHub(MinecraftClient client) {
+    private static boolean isInHub(Minecraft client) {
         if (client == null || client.player == null) {
             return false;
         }
@@ -109,16 +109,14 @@ public final class TransitionDetector {
         currentAttempt = null;
     }
 
-    
     public static String modeToStatsKey(TransitionMode mode) {
         return switch (mode) {
-            case CLASSIC  -> "classic";
+            case CLASSIC -> "classic";
             case LIGHT120 -> "light120";
-            default       -> "light";
+            default -> "light";
         };
     }
 
-    
     public static void onDisconnect() {
         HubSwap.getStats().onServerChange(null);
         HubSwap.saveStats();

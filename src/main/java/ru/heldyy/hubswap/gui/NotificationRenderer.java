@@ -1,13 +1,14 @@
 package ru.heldyy.hubswap.gui;
 
-import ru.heldyy.hubswap.HubSwap;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.text.Text;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import ru.heldyy.hubswap.HubSwap;
 
 public class NotificationRenderer {
-    private static Text message = null;
+    private static Component message = null;
     private static long showTime = 0L;
     private static final long TOTAL_DURATION = 4000L;
     private static final long FADE_IN = 400L;
@@ -17,7 +18,7 @@ public class NotificationRenderer {
 
     public static void showNotification(String msg) {
         if (!HubSwap.getConfig().isNotificationsEnabled()) return;
-        message = Text.literal(msg);
+        message = Component.literal(msg);
         showTime = System.currentTimeMillis();
         anim.alpha = 0.0f;
         anim.offsetY = -20.0f;
@@ -26,9 +27,9 @@ public class NotificationRenderer {
     }
 
     public static void register() {
-        HudRenderCallback.EVENT.register((DrawContext context, float tickDelta) -> {
+        HudRenderCallback.EVENT.register((GuiGraphics context, DeltaTracker tickCounter) -> {
             if (!HubSwap.getConfig().isNotificationsEnabled()) return;
-            if (message == null || MinecraftClient.getInstance().world == null) return;
+            if (message == null || Minecraft.getInstance().level == null) return;
 
             long now = System.currentTimeMillis();
             long elapsed = now - showTime;
@@ -61,44 +62,44 @@ public class NotificationRenderer {
             anim.offsetY = smoothLerp(anim.offsetY, targetYOffset, smoothing);
             anim.scale = smoothLerp(anim.scale, targetScale, smoothing);
 
-            MinecraftClient client = MinecraftClient.getInstance();
-            int screenWidth = context.getScaledWindowWidth();
-            int textWidth = client.textRenderer.getWidth(message);
-            
+            Minecraft client = Minecraft.getInstance();
+            int screenWidth = context.guiWidth();
+            int textWidth = client.font.width(message);
+
             int panelWidth = textWidth + 20;
             int panelHeight = 16;
-            
+
             int x = screenWidth - panelWidth - 10;
             int y = (int) (BASE_Y + anim.offsetY);
 
-            context.getMatrices().push();
-            
+            context.pose().pushMatrix();
+
             float scaleOriginX = screenWidth - 10;
             float scaleOriginY = y + panelHeight / 2.0f;
-            context.getMatrices().translate(scaleOriginX, scaleOriginY, 0);
-            context.getMatrices().scale(anim.scale, anim.scale, 1.0f);
-            context.getMatrices().translate(-scaleOriginX, -scaleOriginY, 0);
+            context.pose().translate(scaleOriginX, scaleOriginY);
+            context.pose().scale(anim.scale, anim.scale);
+            context.pose().translate(-scaleOriginX, -scaleOriginY);
 
             int alphaInt = (int) (anim.alpha * 255.0f);
-            
+
             int bgColorTop = (int) (anim.alpha * 180.0f) << 24 | 0x1a1a2e;
             int bgColorBottom = (int) (anim.alpha * 200.0f) << 24 | 0x16213e;
             context.fillGradient(x, y, x + panelWidth, y + panelHeight, bgColorTop, bgColorBottom);
-            
+
             int borderColor = alphaInt << 24 | HubSwap.getConfig().getColorTheme().getRgbColor();
             context.fill(x - 1, y - 1, x + panelWidth + 1, y, borderColor);
             context.fill(x - 1, y + panelHeight, x + panelWidth + 1, y + panelHeight + 1, borderColor);
             context.fill(x - 1, y - 1, x, y + panelHeight + 1, borderColor);
             context.fill(x + panelWidth, y - 1, x + panelWidth + 1, y + panelHeight + 1, borderColor);
-            
+
             int iconColor = alphaInt << 24 | HubSwap.getConfig().getColorTheme().getRgbColor();
             context.fill(x + 6, y + 5, x + 8, y + 11, iconColor);
             context.fill(x + 8, y + 6, x + 10, y + 10, iconColor);
-            
-            int textColor = alphaInt << 24 | 0xFFFFFF;
-            context.drawText(client.textRenderer, message, x + 14, y + 4, textColor, true);
 
-            context.getMatrices().pop();
+            int textColor = alphaInt << 24 | 0xFFFFFF;
+            context.drawString(client.font, message, x + 14, y + 4, textColor, true);
+
+            context.pose().popMatrix();
         });
     }
 
