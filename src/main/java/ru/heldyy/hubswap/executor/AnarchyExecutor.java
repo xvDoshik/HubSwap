@@ -59,7 +59,7 @@ public class AnarchyExecutor {
                             TransitionMode.LIGHT,
                             anarchyNumber,
                             delays,
-                            13,
+                            12,
                             slots[0],
                             slots[1]
                     );
