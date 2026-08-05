@@ -141,13 +141,7 @@ public class AnarchyExecutor {
     }
 
     private static boolean isValidLightNumber(int number) {
-        if (number == 57) {
-            return false;
-        }
-        return (number >= 1 && number <= 17)
-                || (number >= 18 && number <= 38)
-                || (number >= 39 && number <= 56)
-                || (number >= 58 && number <= 74);
+        return number >= 1 && number <= 74;
     }
 
     private static int getClassicTargetSlot(int number) {
@@ -161,26 +155,26 @@ public class AnarchyExecutor {
         if (number >= 18 && number <= 38) {
             return new int[]{1, getDuoTargetSlot(number)};
         }
-        if (number >= 39 && number <= 56) {
+        if (number >= 39 && number <= 57) {
             return new int[]{2, getTrioTargetSlot(number)};
         }
         return new int[]{3, getClanTargetSlot(number)};
     }
 
     private static int getSoloTargetSlot(int number) {
-        return 10 + (number - 1) * 3 / 2;
+        return 17 + number;
     }
 
     private static int getDuoTargetSlot(int number) {
-        return 10 + (number - 18) * 7 / 5;
+        return number;
     }
 
     private static int getTrioTargetSlot(int number) {
-        return 10 + (number - 39) * 25 / 17;
+        return number - 21;
     }
 
     private static int getClanTargetSlot(int number) {
-        return 10 + (number - 58) * 3 / 2;
+        return number - 40;
     }
 
     private static int getLite120TargetSlot(int number) {
