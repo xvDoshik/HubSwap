@@ -1,0 +1,107 @@
+[EN](../README.md) | RU
+
+# HubSwap
+
+![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
+
+
+Fabric-мод для быстрого перехода между Anarchy / Lite-Anarchy серверами на **HolyWorld**.
+
+> Оригинальный мод - [Heldyy90/HubSwap](https://github.com/Heldyy90/HubSwap).  
+> **Heldyy - красава**, сделал отличную базу. Этот форк - переписанная версия под **Minecraft 1.21.11** с обновлённым API и сборкой.
+
+## Требования
+
+| Компонент | Версия |
+|-----------|--------|
+| Minecraft | 1.21.11 |
+| Fabric Loader | 0.19.3+ |
+| Fabric API | 0.141.6+1.21.11 |
+| Java (для сборки) | 21+ |
+
+## Установка
+
+1. Установи [Fabric Loader](https://fabricmc.net/use/) для Minecraft **1.21.11**
+2. Скачай **Fabric API** (`0.141.6+1.21.11`) и положи в `mods/`
+3. Скачай `HubSwap-1.1.1.jar` из [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
+4. Положи JAR в папку `mods/`
+5. Запусти игру
+
+```
+.minecraft/
+  mods/
+    fabric-api-0.141.6+1.21.11.jar
+    HubSwap-1.1.1.jar
+```
+
+## Управление
+
+| Действие | Клавиша / команда |
+|----------|-------------------|
+| Меню настроек | **F6** |
+| Classic анархия | `/cn <1-5>` |
+| Lite анархия | `/ln <1-74>` |
+| Lite 1.20 | `/ln120 <1-3>` |
+| Prime анархия | `/pr <1-9>` |
+
+Команды работают на русской и английской раскладке. Названия серверов в чате кликабельные.
+
+## Возможности
+
+- Автопереход: хаб -> меню -> выбор сервера
+- Настройка задержек `/hub` и между кликами
+- Умный автоподбор задержек по пингу
+- Хоткеи на 8 слотов
+- Уведомления о переходе
+- Темы интерфейса и цвет ссылок в чате
+- Статистика переходов
+
+## Конфиг
+
+Файл: `config/hubswap.json`
+
+- Задержки и команды
+- Хоткеи
+- Тема и цвет ссылок
+- Статистика: `config/hubswap_stats.json`
+
+## Сборка из исходников
+
+```bash
+git clone https://github.com/xvdosha-alt/HubSwap.git
+cd HubSwap
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+./gradlew build
+```
+
+Готовый JAR:
+
+```
+build/libs/HubSwap-1.1.1.jar
+```
+
+## Благодарности
+
+- **[Heldyy](https://github.com/Heldyy90)** - автор оригинального HubSwap, без него этого мода не было бы
+- Оригинал: https://github.com/Heldyy90/HubSwap
+
+## Лицензия
+
+MIT - см. [LICENSE](LICENSE)
+
+<!-- HUBSWAP-STATS:START -->
+## Статистика проекта
+
+| Показатель | Значение |
+|---|---:|
+| Всего скачиваний файлов | **649** |
+| Скачиваний `.jar` модов | **620** |
+| Всего релизов | **9** |
+| Всего файлов в релизах | **13** |
+| Последняя версия | **[`v.1.0.8`](https://github.com/Heldyy90/HubSwap/releases/tag/v.1.0.8)** |
+| Дата последнего релиза | **2026-08-19** |
+
+[Подробная статистика по всем релизам](./STATS.md)
+
+_Автообновление: 2026-08-30 20:51 UTC_
+<!-- HUBSWAP-STATS:END -->

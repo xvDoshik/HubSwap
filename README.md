@@ -1,26 +1,31 @@
+EN | [RU](docs/README_RU.md)
+
 # HubSwap
 
-Fabric-мод для быстрого перехода между Anarchy / Lite-Anarchy серверами на **HolyWorld**.
+![Java](https://img.shields.io/badge/Java-ED8B00?style=flat-square&logo=openjdk&logoColor=white)
 
-> Оригинальный мод — [Heldyy90/HubSwap](https://github.com/Heldyy90/HubSwap).  
-> **Heldyy — красава**, сделал отличную базу. Этот форк — переписанная версия под **Minecraft 1.21.11** с обновлённым API и сборкой.
 
-## Требования
+Fabric mod for quick switching between Anarchy / Lite-Anarchy servers on **HolyWorld**.
 
-| Компонент | Версия |
+> Original mod - [Heldyy90/HubSwap](https://github.com/Heldyy90/HubSwap).  
+> **Heldyy did great work** on the original base. This fork is a rewritten version for **Minecraft 1.21.11** with updated API and build.
+
+## Requirements
+
+| Component | Version |
 |-----------|--------|
 | Minecraft | 1.21.11 |
 | Fabric Loader | 0.19.3+ |
 | Fabric API | 0.141.6+1.21.11 |
-| Java (для сборки) | 21+ |
+| Java (for build) | 21+ |
 
-## Установка
+## Installation
 
-1. Установи [Fabric Loader](https://fabricmc.net/use/) для Minecraft **1.21.11**
-2. Скачай **Fabric API** (`0.141.6+1.21.11`) и положи в `mods/`
-3. Скачай `HubSwap-1.1.1.jar` из [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
-4. Положи JAR в папку `mods/`
-5. Запусти игру
+1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft **1.21.11**
+2. Download **Fabric API** (`0.141.6+1.21.11`) and place it in `mods/`
+3. Download `HubSwap-1.1.1.jar` from [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
+4. Put the JAR in the `mods/` folder
+5. Launch the game
 
 ```
 .minecraft/
@@ -29,38 +34,38 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
     HubSwap-1.1.1.jar
 ```
 
-## Управление
+## Controls
 
-| Действие | Клавиша / команда |
+| Action | Key / command |
 |----------|-------------------|
-| Меню настроек | **F6** |
-| Classic анархия | `/cn <1-5>` |
-| Lite анархия | `/ln <1-74>` |
+| Settings menu | **F6** |
+| Classic anarchy | `/cn <1-5>` |
+| Lite anarchy | `/ln <1-74>` |
 | Lite 1.20 | `/ln120 <1-3>` |
-| Prime анархия | `/pr <1-9>` |
+| Prime anarchy | `/pr <1-9>` |
 
-Команды работают на русской и английской раскладке. Названия серверов в чате кликабельные.
+Commands work on Russian and English keyboard layouts. Server names in chat are clickable.
 
-## Возможности
+## Features
 
-- Автопереход: хаб → меню → выбор сервера
-- Настройка задержек `/hub` и между кликами
-- Умный автоподбор задержек по пингу
-- Хоткеи на 8 слотов
-- Уведомления о переходе
-- Темы интерфейса и цвет ссылок в чате
-- Статистика переходов
+- Auto-switch: hub -> menu -> server selection
+- Configurable `/hub` delay and delay between clicks
+- Smart auto-tuning of delays based on ping
+- Hotkeys for 8 slots
+- Switch notifications
+- UI themes and chat link color
+- Switch statistics
 
-## Конфиг
+## Config
 
-Файл: `config/hubswap.json`
+File: `config/hubswap.json`
 
-- Задержки и команды
-- Хоткеи
-- Тема и цвет ссылок
-- Статистика: `config/hubswap_stats.json`
+- Delays and commands
+- Hotkeys
+- Theme and link color
+- Statistics: `config/hubswap_stats.json`
 
-## Сборка из исходников
+## Build from source
 
 ```bash
 git clone https://github.com/xvdosha-alt/HubSwap.git
@@ -69,34 +74,34 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 ./gradlew build
 ```
 
-Готовый JAR:
+Output JAR:
 
 ```
 build/libs/HubSwap-1.1.1.jar
 ```
 
-## Благодарности
+## Credits
 
-- **[Heldyy](https://github.com/Heldyy90)** — автор оригинального HubSwap, без него этого мода не было бы
-- Оригинал: https://github.com/Heldyy90/HubSwap
+- **[Heldyy](https://github.com/Heldyy90)** - author of the original HubSwap; this mod would not exist without that work
+- Original: https://github.com/Heldyy90/HubSwap
 
-## Лицензия
+## License
 
-MIT — см. [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
 
 <!-- HUBSWAP-STATS:START -->
-## 📊 Статистика проекта
+## Project statistics
 
-| Показатель | Значение |
+| Metric | Value |
 |---|---:|
-| 📥 Всего скачиваний файлов | **649** |
-| 🧩 Скачиваний `.jar` модов | **620** |
-| 🚀 Всего релизов | **9** |
-| 📦 Всего файлов в релизах | **13** |
-| 🆕 Последняя версия | **[`v.1.0.8`](https://github.com/Heldyy90/HubSwap/releases/tag/v.1.0.8)** |
-| 📅 Дата последнего релиза | **2026-08-19** |
+| Total file downloads | **649** |
+| `.jar` mod downloads | **620** |
+| Total releases | **9** |
+| Total release files | **13** |
+| Latest version | **[`v.1.0.8`](https://github.com/Heldyy90/HubSwap/releases/tag/v.1.0.8)** |
+| Latest release date | **2026-08-19** |
 
-[➡️ Подробная статистика по всем релизам](./STATS.md)
+[Detailed stats for all releases](./STATS.md)
 
-_Автообновление: 2026-08-30 20:51 UTC_
+_Auto-updated: 2026-08-30 20:51 UTC_
 <!-- HUBSWAP-STATS:END -->
