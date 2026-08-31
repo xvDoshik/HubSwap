@@ -90,18 +90,18 @@ build/libs/HubSwap-1.1.1.jar
 MIT - see [LICENSE](LICENSE)
 
 <!-- HUBSWAP-STATS:START -->
-## Project statistics
+## 📊 Статистика проекта
 
-| Metric | Value |
+| Показатель | Значение |
 |---|---:|
-| Total file downloads | **649** |
-| `.jar` mod downloads | **620** |
-| Total releases | **9** |
-| Total release files | **13** |
-| Latest version | **[`v.1.0.8`](https://github.com/Heldyy90/HubSwap/releases/tag/v.1.0.8)** |
-| Latest release date | **2026-08-19** |
+| 📥 Всего скачиваний файлов | **649** |
+| 🧩 Скачиваний `.jar` модов | **620** |
+| 🚀 Всего релизов | **9** |
+| 📦 Всего файлов в релизах | **13** |
+| 🆕 Последняя версия | **[`v.1.0.8`](https://github.com/Heldyy90/HubSwap/releases/tag/v.1.0.8)** |
+| 📅 Дата последнего релиза | **2026-08-19** |
 
-[Detailed stats for all releases](./STATS.md)
+[➡️ Подробная статистика по всем релизам](./STATS.md)
 
-_Auto-updated: 2026-08-30 20:51 UTC_
+_Автообновление: 2026-08-31 04:59 UTC_
 <!-- HUBSWAP-STATS:END -->
