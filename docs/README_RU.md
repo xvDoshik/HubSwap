@@ -23,7 +23,7 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
 
 1. Установи [Fabric Loader](https://fabricmc.net/use/) для Minecraft **1.21.11**
 2. Скачай **Fabric API** (`0.141.6+1.21.11`) и положи в `mods/`
-3. Скачай `HubSwap-1.1.1.jar` из [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
+3. Скачай `HubSwap-1.1.1.jar` из [Releases](https://github.com/xvDoshik/HubSwap/releases)
 4. Положи JAR в папку `mods/`
 5. Запусти игру
 
@@ -68,7 +68,7 @@ Fabric-мод для быстрого перехода между Anarchy / Lite
 ## Сборка из исходников
 
 ```bash
-git clone https://github.com/xvdosha-alt/HubSwap.git
+git clone https://github.com/xvDoshik/HubSwap.git
 cd HubSwap
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 ./gradlew build

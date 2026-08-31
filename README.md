@@ -23,7 +23,7 @@ Fabric mod for quick switching between Anarchy / Lite-Anarchy servers on **HolyW
 
 1. Install [Fabric Loader](https://fabricmc.net/use/) for Minecraft **1.21.11**
 2. Download **Fabric API** (`0.141.6+1.21.11`) and place it in `mods/`
-3. Download `HubSwap-1.1.1.jar` from [Releases](https://github.com/xvdosha-alt/HubSwap/releases)
+3. Download `HubSwap-1.1.1.jar` from [Releases](https://github.com/xvDoshik/HubSwap/releases)
 4. Put the JAR in the `mods/` folder
 5. Launch the game
 
@@ -68,7 +68,7 @@ File: `config/hubswap.json`
 ## Build from source
 
 ```bash
-git clone https://github.com/xvdosha-alt/HubSwap.git
+git clone https://github.com/xvDoshik/HubSwap.git
 cd HubSwap
 export JAVA_HOME=$(/usr/libexec/java_home -v 21)
 ./gradlew build

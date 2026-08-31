@@ -20,10 +20,10 @@ public class UpdateChecker {
     private static final String MOD_ID = "hubswap";
 
     private static final String GITHUB_API =
-            "https://api.github.com/repos/xvdosha-alt/HubSwap/releases/latest";
+            "https://api.github.com/repos/xvDoshik/HubSwap/releases/latest";
 
     private static final String REPO_URL =
-            "https://github.com/xvdosha-alt/HubSwap/releases/latest";
+            "https://github.com/xvDoshik/HubSwap/releases/latest";
 
     private static boolean checked = false;
 
